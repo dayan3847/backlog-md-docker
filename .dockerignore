@@ -1,0 +1,3 @@
+# The image needs only upstream's license notice from the build context.
+*
+!LICENSES/Backlog.md.LICENSE
