@@ -1,0 +1,80 @@
+#!/usr/bin/env bash
+# backlog-md-docker - the Backlog.md CLI (https://github.com/MrLesk/Backlog.md) with Docker as the only
+# requirement.
+#
+# One long-lived container per backlog runs the web UI; every call is a `docker exec` into it, started first
+# when it is not running. Every argument passes through to `backlog`, except the wrapper's own options.
+#
+# Settings (environment variable, then default):
+#   BACKLOG_MD_DOCKER_DIR        folder holding the backlog   (~/backlog-hq)
+#   BACKLOG_MD_DOCKER_CONTAINER  container name               (backlog-md)
+#   BACKLOG_MD_DOCKER_PORT       web UI port on 127.0.0.1     (6420)
+#
+# Own options:
+#   --stop   stop and remove the container
+#
+# `backlog-md-docker browser` only prints the URL: the UI is already up.
+
+image="ghcr.io/dayan3847/backlog-md-docker:1.55.3"
+name="${BACKLOG_MD_DOCKER_CONTAINER:-backlog-md}"
+port="${BACKLOG_MD_DOCKER_PORT:-6420}"
+
+if [ "${1:-}" = "--stop" ]; then
+    docker rm -f "$name" >/dev/null
+    exit
+fi
+
+dir="${BACKLOG_MD_DOCKER_DIR:-$HOME/backlog-hq}"
+mkdir -p "$dir" || exit 1
+# Absolute and without symlinks: Docker takes a relative `-v` source for a named volume, and the mount check
+# below compares against the path Docker reports.
+dir="$(realpath "$dir")"
+
+tty=(-i)
+[ -t 0 ] && [ -t 1 ] && tty=(-it)
+# The host user runs the container, so the files it writes keep that owner; HOME=/tmp because that user
+# has no home in the image.
+run_as=(--user "$(id -u):$(id -g)" -e HOME=/tmp)
+
+# Detects whether the folder already holds an initialized backlog, by upstream's project files
+# (src/utils/find-backlog-root.ts).
+project_file=""
+for file in "$dir/backlog/config.yml" "$dir/.backlog/config.yml" "$dir/backlog.config.yml" "$dir/backlog.json"; do
+    [ -f "$file" ] && project_file="$file" && break
+done
+
+# No backlog yet (`init`, `--help`): the UI would exit at once, so run this call in a one-off container.
+[ -z "$project_file" ] && exec docker run --rm "${tty[@]}" --pull never "${run_as[@]}" -v "$dir:/work" "$image" backlog "$@"
+
+if [ "$(docker inspect -f '{{.State.Running}}' "$name" 2>/dev/null)" = "true" ]; then
+    mounted="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' "$name")"
+    # Same name, another folder: most likely another backlog's container, so never take it over.
+    if [ "$mounted" != "$dir" ]; then
+        echo "backlog-md-docker: container '$name' is serving $mounted, not $dir." >&2
+        echo "Stop it with --stop, or set BACKLOG_MD_DOCKER_CONTAINER and BACKLOG_MD_DOCKER_PORT for this backlog." >&2
+        exit 1
+    fi
+    # A new pinned image or another port: recreate it below.
+    if [ "$(docker inspect -f '{{.Config.Image}}' "$name")" != "$image" ] \
+        || [ "$(docker port "$name" 6421/tcp)" != "127.0.0.1:$port" ]; then
+        running=false
+    else
+        running=true
+    fi
+fi
+
+if [ "${running:-false}" != "true" ]; then
+    # A stopped container keeps no state worth keeping; removing it frees the name.
+    docker rm -f "$name" >/dev/null 2>&1
+    # --pull never: the image is built locally until it is published.
+    # The UI's API has no authentication, so the port is published on the host's loopback alone.
+    docker run -d --name "$name" --init --pull never "${run_as[@]}" \
+        -p "127.0.0.1:$port:6421" -v "$dir:/work" "$image" >/dev/null || exit 1
+fi
+
+if [ "${1:-}" = "browser" ]; then
+    echo "http://127.0.0.1:$port"
+    exit 0
+fi
+
+exec docker exec "${tty[@]}" "$name" backlog "$@"
