@@ -42,13 +42,22 @@ By default every call, from any folder, uses the same global backlog in `~/backl
 
 ## Settings
 
-Environment variables, falling back to the defaults:
+Environment variables, then the config file, then the defaults. The config file is
+`~/.config/backlog-md-docker.conf`, or the one `BACKLOG_MD_DOCKER_CONFIG` points to.
 
 | Variable                      | Default        | Meaning                                       |
 |-------------------------------|----------------|-----------------------------------------------|
 | `BACKLOG_MD_DOCKER_DIR`       | `~/backlog-hq` | Folder holding the backlog; created if missing |
 | `BACKLOG_MD_DOCKER_CONTAINER` | `backlog-md`   | Container name                                |
 | `BACKLOG_MD_DOCKER_PORT`      | `6420`         | Web UI port, published on `127.0.0.1` only    |
+| `DOCKER_CONTEXT`              | Docker's own   | Docker context to run on                      |
+
+The config file holds one `KEY=value` per line, without quotes; lines starting with `#` are skipped:
+
+```bash
+BACKLOG_MD_DOCKER_DIR=~/work/backlog
+DOCKER_CONTEXT=default
+```
 
 ## Own options
 
