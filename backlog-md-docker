@@ -14,6 +14,7 @@
 #   --stop            stop and remove the container
 #   --self-update     install the latest command from the repository
 #   --install-claude  write Claude Code's rules for this backlog (re-run after an update)
+#   --init            initialize the backlog without prompts
 #
 # `backlog-md-docker browser` only prints the URL: the UI is already up.
 
@@ -67,6 +68,17 @@ project_file=""
 for file in "$dir/backlog/config.yml" "$dir/.backlog/config.yml" "$dir/backlog.config.yml" "$dir/backlog.json"; do
     [ -f "$file" ] && project_file="$file" && break
 done
+
+if [ "${1:-}" = "--init" ]; then
+    if [ -n "$project_file" ]; then
+        echo "backlog-md-docker: $dir already holds a backlog ($project_file)." >&2
+        exit 1
+    fi
+    # Agent instructions come from --install-claude, global, so none go into the backlog folder.
+    exec docker run --rm "${tty[@]}" "${run_as[@]}" -v "$dir:/work" "$image" backlog init HQ --defaults \
+        --no-git --integration-mode cli --agent-instructions none --install-claude-agent false \
+        --zero-padded-ids 4 --auto-open-browser false --check-branches false --include-remote false
+fi
 
 # No backlog yet (`init`, `--help`): the UI would exit at once, so run this call in a one-off container.
 [ -z "$project_file" ] && exec docker run --rm "${tty[@]}" "${run_as[@]}" -v "$dir:/work" "$image" backlog "$@"
