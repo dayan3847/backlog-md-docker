@@ -44,7 +44,7 @@ for file in "$dir/backlog/config.yml" "$dir/.backlog/config.yml" "$dir/backlog.c
 done
 
 # No backlog yet (`init`, `--help`): the UI would exit at once, so run this call in a one-off container.
-[ -z "$project_file" ] && exec docker run --rm "${tty[@]}" --pull never "${run_as[@]}" -v "$dir:/work" "$image" backlog "$@"
+[ -z "$project_file" ] && exec docker run --rm "${tty[@]}" "${run_as[@]}" -v "$dir:/work" "$image" backlog "$@"
 
 if [ "$(docker inspect -f '{{.State.Running}}' "$name" 2>/dev/null)" = "true" ]; then
     mounted="$(docker inspect -f '{{range .Mounts}}{{if eq .Destination "/work"}}{{.Source}}{{end}}{{end}}' "$name")"
@@ -66,9 +66,8 @@ fi
 if [ "${running:-false}" != "true" ]; then
     # A stopped container keeps no state worth keeping; removing it frees the name.
     docker rm -f "$name" >/dev/null 2>&1
-    # --pull never: the image is built locally until it is published.
     # The UI's API has no authentication, so the port is published on the host's loopback alone.
-    docker run -d --name "$name" --init --pull never "${run_as[@]}" \
+    docker run -d --name "$name" --init "${run_as[@]}" \
         -p "127.0.0.1:$port:6421" -v "$dir:/work" "$image" >/dev/null || exit 1
 fi
 
