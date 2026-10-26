@@ -18,16 +18,18 @@ first when it is not running. Files are written as your own user.
 curl -fsSL https://raw.githubusercontent.com/dayan3847/backlog-md-docker/master/install.sh | bash
 ```
 
-It installs the command in `~/.local/bin`. The first call pulls the image from GHCR.
+It installs the command in `~/.local/bin`, and its bash completion where the bash-completion package loads it
+from. The first call pulls the image from GHCR.
 
 Or from a clone, to work on it:
 
 ```bash
 git clone https://github.com/dayan3847/backlog-md-docker.git
 ln -s "$PWD/backlog-md-docker/backlog-md-docker" ~/.local/bin/backlog-md-docker
+ln -s "$PWD/backlog-md-docker/completions/backlog-md-docker.bash" ~/.local/share/bash-completion/completions/backlog-md-docker
 ```
 
-A clone is updated with `git pull`; `--self-update` leaves the link alone.
+A clone is updated with `git pull`; `--self-update` leaves the links alone.
 
 ## Usage
 
