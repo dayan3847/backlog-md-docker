@@ -11,7 +11,8 @@
 #   BACKLOG_MD_DOCKER_PORT       web UI port on 127.0.0.1     (6420)
 #
 # Own options:
-#   --stop   stop and remove the container
+#   --stop          stop and remove the container
+#   --self-update   install the latest command from the repository
 #
 # `backlog-md-docker browser` only prints the URL: the UI is already up.
 
@@ -22,6 +23,11 @@ port="${BACKLOG_MD_DOCKER_PORT:-6420}"
 if [ "${1:-}" = "--stop" ]; then
     docker rm -f "$name" >/dev/null
     exit
+fi
+
+if [ "${1:-}" = "--self-update" ]; then
+    installer="$(curl -fsSL https://raw.githubusercontent.com/dayan3847/backlog-md-docker/master/install.sh)" || exit 1
+    exec bash -c "$installer"
 fi
 
 dir="${BACKLOG_MD_DOCKER_DIR:-$HOME/backlog-hq}"
