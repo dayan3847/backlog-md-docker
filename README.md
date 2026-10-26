@@ -14,12 +14,13 @@ first when it is not running. Files are written as your own user.
 
 ## Install
 
-There are no releases yet. For now, from a clone:
+From a clone:
 
 ```bash
-docker build -t ghcr.io/dayan3847/backlog-md-docker:1.55.3 .
 ln -s "$PWD/backlog-md-docker" ~/.local/bin/backlog-md-docker
 ```
+
+The first call pulls the image from GHCR.
 
 ## Usage
 
