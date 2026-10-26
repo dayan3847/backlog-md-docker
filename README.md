@@ -14,13 +14,20 @@ first when it is not running. Files are written as your own user.
 
 ## Install
 
-From a clone:
-
 ```bash
-ln -s "$PWD/backlog-md-docker" ~/.local/bin/backlog-md-docker
+curl -fsSL https://raw.githubusercontent.com/dayan3847/backlog-md-docker/master/install.sh | bash
 ```
 
-The first call pulls the image from GHCR.
+It installs the command in `~/.local/bin`. The first call pulls the image from GHCR.
+
+Or from a clone, to work on it:
+
+```bash
+git clone https://github.com/dayan3847/backlog-md-docker.git
+ln -s "$PWD/backlog-md-docker/backlog-md-docker" ~/.local/bin/backlog-md-docker
+```
+
+A clone is updated with `git pull`; `--self-update` leaves the link alone.
 
 ## Usage
 
@@ -49,6 +56,7 @@ Every argument passes through to `backlog`, except:
 
 - `browser`: only prints the web UI's URL, since the UI is always running while the container is.
 - `--stop`: stop and remove the container. The next call starts a fresh one.
+- `--self-update`: install the latest command from this repository.
 
 ## License
 
