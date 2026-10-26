@@ -11,8 +11,9 @@
 #   BACKLOG_MD_DOCKER_PORT       web UI port on 127.0.0.1     (6420)
 #
 # Own options:
-#   --stop          stop and remove the container
-#   --self-update   install the latest command from the repository
+#   --stop            stop and remove the container
+#   --self-update     install the latest command from the repository
+#   --install-claude  write Claude Code's rules for this backlog (re-run after an update)
 #
 # `backlog-md-docker browser` only prints the URL: the UI is already up.
 
@@ -35,6 +36,24 @@ mkdir -p "$dir" || exit 1
 # Absolute and without symlinks: Docker takes a relative `-v` source for a named volume, and the mount check
 # below compares against the path Docker reports.
 dir="$(realpath "$dir")"
+
+if [ "${1:-}" = "--install-claude" ]; then
+    rules="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/rules"
+    # Upstream's agent instructions for the pinned version, from a throwaway project that leaves the backlog alone.
+    block="$(docker run --rm -w /tmp "$image" sh -c \
+        'backlog init x --defaults --no-git --agent-instructions agents >/dev/null && cat AGENTS.md')" || exit 1
+    mkdir -p "$rules" || exit 1
+    cat >"$rules/backlog-md-docker.md" <<EOF || exit 1
+# Backlog.md through backlog-md-docker
+
+Backlog.md runs here as \`backlog-md-docker\`: every \`backlog <args>\` in the instructions below, and in the guides they point to, means \`backlog-md-docker <args>\`.
+Its backlog is global, in $dir, and the same from any folder: its tasks are not tied to the project you are working in.
+
+$block
+EOF
+    echo "Wrote $rules/backlog-md-docker.md."
+    exit
+fi
 
 tty=(-i)
 [ -t 0 ] && [ -t 1 ] && tty=(-it)
