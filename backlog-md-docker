@@ -5,10 +5,13 @@
 # One long-lived container per backlog runs the web UI; every call is a `docker exec` into it, started first
 # when it is not running. Every argument passes through to `backlog`, except the wrapper's own options.
 #
-# Settings (environment variable, then default):
+# Settings (environment variable, then the config file, then default):
+#   BACKLOG_MD_DOCKER_CONFIG     config file (env only)       (~/.config/backlog-md-docker.conf)
 #   BACKLOG_MD_DOCKER_DIR        folder holding the backlog   (~/backlog-hq)
 #   BACKLOG_MD_DOCKER_CONTAINER  container name               (backlog-md)
 #   BACKLOG_MD_DOCKER_PORT       web UI port on 127.0.0.1     (6420)
+#   DOCKER_CONTEXT               Docker context               (Docker's own)
+# The config file holds KEY=value lines; lines starting with # are skipped.
 #
 # Own options:
 #   --stop            stop and remove the container
@@ -17,6 +20,17 @@
 #   --init            initialize the backlog without prompts
 #
 # `backlog-md-docker browser` only prints the URL: the UI is already up.
+
+config="${BACKLOG_MD_DOCKER_CONFIG:-$HOME/.config/backlog-md-docker.conf}"
+if [ -f "$config" ]; then
+    # Read, not sourced: the file runs no code and only fills settings the environment leaves unset.
+    while IFS='=' read -r key value; do
+        case "$key" in
+            BACKLOG_MD_DOCKER_DIR | BACKLOG_MD_DOCKER_CONTAINER | BACKLOG_MD_DOCKER_PORT | DOCKER_CONTEXT)
+                [ -z "${!key:-}" ] && export "$key=${value/#\~/$HOME}" ;;
+        esac
+    done <"$config"
+fi
 
 image="ghcr.io/dayan3847/backlog-md-docker:1.55.3"
 name="${BACKLOG_MD_DOCKER_CONTAINER:-backlog-md}"
