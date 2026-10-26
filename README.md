@@ -32,7 +32,7 @@ A clone is updated with `git pull`; `--self-update` leaves the link alone.
 ## Usage
 
 ```bash
-backlog-md-docker init                                     # first time only
+backlog-md-docker --init                                   # first time only
 backlog-md-docker task create "Write the README"
 backlog-md-docker task list --plain
 backlog-md-docker browser                                  # prints the web UI's URL
@@ -60,6 +60,9 @@ Every argument passes through to `backlog`, except:
 - `--install-claude`: write Claude Code's rules for this backlog to
   `${CLAUDE_CONFIG_DIR:-~/.claude}/rules/backlog-md-docker.md`, so Claude uses it from any folder. Run it again
   after an update or after changing the backlog folder.
+- `--init`: initialize the backlog without prompts: project "HQ", no Git, 4-digit IDs, no browser
+  auto-open, no agent instruction files. Change anything afterwards with `backlog-md-docker config`, or run
+  `init` for upstream's prompts.
 
 ## License
 
