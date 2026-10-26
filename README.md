@@ -24,9 +24,17 @@ from. The first call pulls the image from GHCR.
 Or from a clone, to work on it:
 
 ```bash
-git clone https://github.com/dayan3847/backlog-md-docker.git
-ln -s "$PWD/backlog-md-docker/backlog-md-docker" ~/.local/bin/backlog-md-docker
-ln -s "$PWD/backlog-md-docker/completions/backlog-md-docker.bash" ~/.local/share/bash-completion/completions/backlog-md-docker
+git clone https://github.com/dayan3847/backlog-md-docker.git ~/backlog-md-docker && cd ~/backlog-md-docker
+```
+
+From the clone, link the command and, optionally, its completion:
+
+```bash
+mkdir -p ~/.local/bin && ln -s "$PWD/backlog-md-docker" ~/.local/bin/backlog-md-docker
+```
+
+```bash
+mkdir -p ~/.local/share/bash-completion/completions && ln -s "$PWD/completions/backlog-md-docker.bash" ~/.local/share/bash-completion/completions/backlog-md-docker
 ```
 
 A clone is updated with `git pull`; `--self-update` leaves the links alone.
