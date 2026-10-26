@@ -57,6 +57,9 @@ Every argument passes through to `backlog`, except:
 - `browser`: only prints the web UI's URL, since the UI is always running while the container is.
 - `--stop`: stop and remove the container. The next call starts a fresh one.
 - `--self-update`: install the latest command from this repository.
+- `--install-claude`: write Claude Code's rules for this backlog to
+  `${CLAUDE_CONFIG_DIR:-~/.claude}/rules/backlog-md-docker.md`, so Claude uses it from any folder. Run it again
+  after an update or after changing the backlog folder.
 
 ## License
 
