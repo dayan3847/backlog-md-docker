@@ -50,6 +50,13 @@ backlog-md-docker browser                                  # prints the web UI's
 
 By default every call, from any folder, uses the same global backlog in `~/backlog-hq`.
 
+A backlog kept in its own git repository moves to a new machine with a clone instead of `--init`:
+
+```bash
+git clone <your-backlog-repository> ~/backlog-hq
+backlog-md-docker --install-claude
+```
+
 ## Settings
 
 Environment variables, then the config file, then the defaults. The config file is
