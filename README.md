@@ -62,12 +62,13 @@ backlog-md-docker --install-claude
 Environment variables, then the config file, then the defaults. The config file is
 `~/.config/backlog-md-docker.conf`, or the one `BACKLOG_MD_DOCKER_CONFIG` points to.
 
-| Variable                      | Default        | Meaning                                       |
-|-------------------------------|----------------|-----------------------------------------------|
-| `BACKLOG_MD_DOCKER_DIR`       | `~/backlog-hq` | Folder holding the backlog; created if missing |
-| `BACKLOG_MD_DOCKER_CONTAINER` | `backlog-md`   | Container name                                |
-| `BACKLOG_MD_DOCKER_PORT`      | `6420`         | Web UI port, published on `127.0.0.1` only    |
-| `DOCKER_CONTEXT`              | Docker's own   | Docker context to run on                      |
+| Variable                      | Default             | Meaning                                        |
+|-------------------------------|---------------------|------------------------------------------------|
+| `BACKLOG_MD_DOCKER_DIR`       | `~/backlog-hq`      | Folder holding the backlog; created if missing |
+| `BACKLOG_MD_DOCKER_CONTAINER` | `backlog-md`        | Container name                                 |
+| `BACKLOG_MD_DOCKER_PORT`      | `6420`              | Web UI port, published on `127.0.0.1` only     |
+| `DOCKER_CONTEXT`              | Docker's own        | Docker context to run on                       |
+| `BACKLOG_MD_DOCKER_COMMAND`   | `backlog-md-docker` | Command named in Claude's rules, for wrappers  |
 
 The config file holds one `KEY=value` per line, without quotes; lines starting with `#` are skipped:
 
